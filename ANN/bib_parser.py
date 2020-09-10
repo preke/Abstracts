@@ -1,5 +1,7 @@
 import pybtex
 import pandas as pd
+import json
+import traceback
 from pybtex.database.input import bibtex
 
 bib_path = 'anthology+abstracts.bib'
@@ -7,36 +9,57 @@ bib_path = 'anthology+abstracts.bib'
 parser = bibtex.Parser()
 bibdata = parser.parse_file(bib_path)
 
-#loop through the individual references
-data_frame = []
+# jsonl
+json_file = open('ann_abstract.jsonl', 'w')
+
+index = 0
 for bib_id in bibdata.entries:
-    tmp_list = []
+    tmp_dict = {}
     b = bibdata.entries[bib_id].fields
     try:
-        tmp_list.append(b["title"])
-    except:
-    	tmp_list.append('N/A')
+        ab = b['abstract']
+        tmp_dict['abstract_id'] = index
+        tmp_dict['sentences'] = ab.split('.')
+        tmp_dict['labels'] = ['0']*len(tmp_dict['sentences'])
 
-    try:
-        tmp_list.append(b["year"])
+        json_str = json.dumps(tmp_dict)
+        json_file.write(json_str + '\n')
+        index += 1
     except:
-    	tmp_list.append('N/A')
+        pass
+json_file.close()
+
+# tsv 
+
+# data_frame = []
+# for bib_id in bibdata.entries:
+#     tmp_list = []
+#     b = bibdata.entries[bib_id].fields
+#     try:
+#         tmp_list.append(b["title"])
+#     except:
+#     	tmp_list.append('N/A')
+
+#     try:
+#         tmp_list.append(b["year"])
+#     except:
+#     	tmp_list.append('N/A')
     
-    try:
-        tmp_list.append(b["booktitle"])
-    except:
-    	try:
-    		tmp_list.append(b["journal"])
-    	except:
-    		tmp_list.append('N/A')
+#     try:
+#         tmp_list.append(b["booktitle"])
+#     except:
+#     	try:
+#     		tmp_list.append(b["journal"])
+#     	except:
+#     		tmp_list.append('N/A')
 
-    try:
-        tmp_list.append(b["abstract"])
-    except:
-    	tmp_list.append('N/A')
+#     try:
+#         tmp_list.append(b["abstract"])
+#     except:
+#     	tmp_list.append('N/A')
 
-    data_frame.append(tmp_list)
+#     data_frame.append(tmp_list)
 
-data_frame = pd.DataFrame(data_frame, columns = ['title', 'year', 'booktitle/journal', 'abstract'])
-data_frame.to_csv('ann.tsv', sep='\t', index=False)
+# data_frame = pd.DataFrame(data_frame, columns = ['title', 'year', 'booktitle/journal', 'abstract'])
+# data_frame.to_csv('ann.tsv', sep='\t', index=False)
 
