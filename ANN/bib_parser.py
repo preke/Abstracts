@@ -9,6 +9,11 @@ bib_path = 'anthology+abstracts.bib'
 parser = bibtex.Parser()
 bibdata = parser.parse_file(bib_path)
 
+import scispacy
+import spacy
+import en_core_web_sm
+nlp = en_core_web_sm.load()
+
 # jsonl
 json_file = open('ann_abstract.jsonl', 'w')
 
@@ -19,7 +24,7 @@ for bib_id in bibdata.entries:
     try:
         ab = b['abstract']
         tmp_dict['abstract_id'] = index
-        tmp_dict['sentences'] = ab.split('.')
+        tmp_dict['sentences'] = [str(i) for i in list(nlp(ab).sents)]
         tmp_dict['labels'] = ['0']*len(tmp_dict['sentences'])
 
         json_str = json.dumps(tmp_dict)
