@@ -24,11 +24,12 @@ for bib_id in bibdata.entries:
     try:
         ab = b['abstract']
         tmp_dict['abstract_id'] = index
-        tmp_dict['sentences'] = [str(i) for i in list(nlp(ab).sents)]
+        tmp_dict['sentences'] = [str(i) for i in list(nlp(ab).sents) if len(str(i)) >= 3]
         tmp_dict['labels'] = ['0']*len(tmp_dict['sentences'])
 
-        json_str = json.dumps(tmp_dict)
-        json_file.write(json_str + '\n')
+        if len(tmp_dict['sentences']) >=3:
+            json_str = json.dumps(tmp_dict)
+            json_file.write(json_str + '\n')
         index += 1
     except:
         pass
